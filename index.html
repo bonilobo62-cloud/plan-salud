@@ -63,26 +63,7 @@
             gap: 6px;
         }
 
-        /* Semáforo Analítica */
-        .analisis-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .analisis-item {
-            background: var(--bg);
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-        .analisis-item .valor { font-size: 1.3rem; font-weight: 800; margin: 3px 0; }
-        .analisis-item .nombre { font-size: 0.75rem; color: var(--text-light); font-weight: 600; }
-        .status-red { color: var(--danger); }
-        .status-yellow { color: var(--warning); }
-        .status-green { color: var(--success); }
-
-        /* Checklist */
+        /* Checklist simplificado */
         .checklist-item {
             display: flex;
             align-items: center;
@@ -171,10 +152,6 @@
         .shopping-item input { margin-right: 8px; accent-color: var(--success); width: 16px; height: 16px; }
         .shopping-item.checked { text-decoration: line-through; color: var(--text-light); }
 
-        .alert-box {
-            background-color: #450a0a; border-left: 4px solid var(--danger);
-            padding: 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 15px;
-        }
         .info-box {
             background-color: #0c4a6e; border-left: 4px solid var(--info);
             padding: 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 15px;
@@ -197,50 +174,20 @@
 <body>
 
 <div class="header">
-    <h1>🏃 Plan de Salud - Bonifacio</h1>
-    <p>64 años | Control Glucosa y Ácido Úrico</p>
+    <h1>🏃 Plan Salud - Bonifacio</h1>
+    <p>Menú semanal + Control de peso</p>
 </div>
 
 <div class="container">
 
-    <!-- ANALÍTICA -->
+    <!-- CHECKLIST SIMPLE -->
     <div class="card">
-        <div class="card-title"> Tu Analítica (Junio 2026)</div>
-        <div class="analisis-grid">
-            <div class="analisis-item">
-                <div class="nombre">Glucosa</div>
-                <div class="valor status-red">141</div>
-                <div class="nombre">mg/dL</div>
-            </div>
-            <div class="analisis-item">
-                <div class="nombre">HbA1c</div>
-                <div class="valor status-yellow">7.1%</div>
-                <div class="nombre">Obj: &lt;7%</div>
-            </div>
-            <div class="analisis-item">
-                <div class="nombre">Ác. Úrico</div>
-                <div class="valor status-yellow">7.6</div>
-                <div class="nombre">mg/dL</div>
-            </div>
-            <div class="analisis-item">
-                <div class="nombre">Vit. D</div>
-                <div class="valor status-yellow">23.1</div>
-                <div class="nombre">ng/mL</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CHECKLIST -->
-    <div class="card">
-        <div class="card-title">✅ Checklist Hoy</div>
+        <div class="card-title">✅ Hoy</div>
         <div class="checklist-item" onclick="toggleCheck(this)">
-            <input type="checkbox" id="meds"><label for="meds">💊 Medicación (Losartan + Synjardy)</label>
+            <input type="checkbox" id="gym"><label for="gym">🏋️ Gimnasio</label>
         </div>
         <div class="checklist-item" onclick="toggleCheck(this)">
             <input type="checkbox" id="vitd"><label for="vitd">☀️ Vitamina D</label>
-        </div>
-        <div class="checklist-item" onclick="toggleCheck(this)">
-            <input type="checkbox" id="gym"><label for="gym">🏋️ Gimnasio</label>
         </div>
         
         <div style="margin-top: 12px;">
@@ -489,13 +436,12 @@
 
     <!-- CONSEJOS -->
     <div class="info-box">
-        <strong>💡 Consejos Clave:</strong>
+        <strong>💡 Consejos:</strong>
         <ul>
-            <li>Bebe 2.5L agua al día (tu medicación deshidrata)</li>
-            <li>Cero alcohol y refrescos (suben ácido úrico)</li>
-            <li>Come primero verdura, luego proteína, luego carbohidrato</li>
-            <li>Toma el suplemento de Vitamina D recetado</li>
-            <li>15 min sol diario ayuda a subir Vitamina D</li>
+            <li>Bebe 2.5L agua al día</li>
+            <li>Cero alcohol y refrescos</li>
+            <li>15 min sol diario (Vitamina D)</li>
+            <li>Toma tu medicación según pauta médica</li>
         </ul>
     </div>
 
