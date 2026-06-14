@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="description" content="Plan de Salud Integral - Bonifacio">
+    <title>Plan Salud - Bonifacio</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-light: #1e3a8a;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+        }
+        * { box-sizing: border-box; transition: background-color 0.3s, color 0.2s; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 40px;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--primary), #1d4ed8);
+            color: white;
+            padding: 20px 20px;
+            border-radius: 0 0 20px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        .header h1 { margin: 0; font-size: 1.4rem; font-weight: 700; }
+        .header p { margin: 5px 0 0; opacity: 0.9; font-size: 0.85rem; }
+        
+        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+        
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Semáforo Analítica */
+        .analisis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .analisis-item {
+            background: var(--bg);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .analisis-item .valor { font-size: 1.3rem; font-weight: 800; margin: 3px 0; }
+        .analisis-item .nombre { font-size: 0.75rem; color: var(--text-light); font-weight: 600; }
+        .status-red { color: var(--danger); }
+        .status-yellow { color: var(--warning); }
+        .status-green { color: var(--success); }
+
+        /* Checklist */
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            accent-color: var(--success);
+            cursor: pointer;
+        }
+        .checklist-item label { flex: 1; cursor: pointer; font-size: 0.95rem; }
+        .checklist-item.completed label { text-decoration: line-through; color: var(--text-light); }
+
+        /* Water Tracker */
+        .water-tracker { display: flex; justify-content: space-between; margin-top: 8px; flex-wrap: wrap; gap: 3px; }
+        .water-glass { font-size: 1.3rem; opacity: 0.3; cursor: pointer; transition: all 0.2s; }
+        .water-glass.filled { opacity: 1; transform: scale(1.1); }
+
+        /* Weight Tracker */
+        .weight-input-group { display: flex; gap: 8px; margin-bottom: 12px; }
+        .weight-input-group input {
+            flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border);
+            background: var(--bg); color: var(--text); font-size: 0.95rem;
+        }
+        .btn {
+            background: var(--primary); color: white; border: none; padding: 10px 16px;
+            border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem;
+        }
+        .weight-history { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; }
+        .weight-badge {
+            background: var(--primary-light); color: white; padding: 6px 10px;
+            border-radius: 15px; font-weight: 700; font-size: 0.85rem; white-space: nowrap;
+        }
+
+        /* Accordion */
+        details {
+            background: var(--card);
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        summary {
+            padding: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: var(--card);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            list-style: none;
+            font-size: 1rem;
+        }
+        summary::-webkit-details-marker { display: none; }
+        summary::after { content: '▼'; font-size: 0.7rem; color: var(--text-light); transition: transform 0.2s; }
+        details[open] summary::after { transform: rotate(180deg); }
+        details[open] summary { background-color: var(--primary-light); }
+        
+        .today-highlight { border-left: 4px solid var(--warning); }
+        .today-highlight summary { background-color: #451a03 !important; }
+
+        .meal-plan { padding: 12px; }
+        .meal { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dashed var(--border); }
+        .meal:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .meal-title {
+            font-weight: 700; color: var(--primary); font-size: 0.8rem;
+            text-transform: uppercase; margin-bottom: 5px;
+        }
+        .option { 
+            background: var(--bg); 
+            padding: 8px; 
+            margin: 6px 0; 
+            border-radius: 6px; 
+            font-size: 0.9rem;
+            border-left: 3px solid var(--primary);
+        }
+
+        /* Shopping List */
+        .shopping-category { font-weight: 700; color: var(--text); margin: 12px 0 6px; font-size: 0.9rem; border-bottom: 1px solid var(--border); padding-bottom: 3px; }
+        .shopping-item { display: flex; align-items: center; padding: 5px 0; font-size: 0.9rem; }
+        .shopping-item input { margin-right: 8px; accent-color: var(--success); width: 16px; height: 16px; }
+        .shopping-item.checked { text-decoration: line-through; color: var(--text-light); }
+
+        .alert-box {
+            background-color: #450a0a; border-left: 4px solid var(--danger);
+            padding: 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 15px;
+        }
+        .info-box {
+            background-color: #0c4a6e; border-left: 4px solid var(--info);
+            padding: 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 15px;
+        }
+        .info-box ul { margin: 6px 0 0 0; padding-left: 20px; }
+        .info-box li { margin-bottom: 4px; }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+        .badge-gym { background-color: #166534; color: #86efac; }
+        .badge-rest { background-color: #475569; color: #cbd5e1; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🏃 Plan de Salud - Bonifacio</h1>
+    <p>64 años | Control Glucosa y Ácido Úrico</p>
+</div>
+
+<div class="container">
+
+    <!-- ANALÍTICA -->
+    <div class="card">
+        <div class="card-title"> Tu Analítica (Junio 2026)</div>
+        <div class="analisis-grid">
+            <div class="analisis-item">
+                <div class="nombre">Glucosa</div>
+                <div class="valor status-red">141</div>
+                <div class="nombre">mg/dL</div>
+            </div>
+            <div class="analisis-item">
+                <div class="nombre">HbA1c</div>
+                <div class="valor status-yellow">7.1%</div>
+                <div class="nombre">Obj: &lt;7%</div>
+            </div>
+            <div class="analisis-item">
+                <div class="nombre">Ác. Úrico</div>
+                <div class="valor status-yellow">7.6</div>
+                <div class="nombre">mg/dL</div>
+            </div>
+            <div class="analisis-item">
+                <div class="nombre">Vit. D</div>
+                <div class="valor status-yellow">23.1</div>
+                <div class="nombre">ng/mL</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHECKLIST -->
+    <div class="card">
+        <div class="card-title">✅ Checklist Hoy</div>
+        <div class="checklist-item" onclick="toggleCheck(this)">
+            <input type="checkbox" id="meds"><label for="meds">💊 Medicación (Losartan + Synjardy)</label>
+        </div>
+        <div class="checklist-item" onclick="toggleCheck(this)">
+            <input type="checkbox" id="vitd"><label for="vitd">☀️ Vitamina D</label>
+        </div>
+        <div class="checklist-item" onclick="toggleCheck(this)">
+            <input type="checkbox" id="gym"><label for="gym">🏋️ Gimnasio</label>
+        </div>
+        
+        <div style="margin-top: 12px;">
+            <div class="meal-title">🚰 Agua: <span id="waterCount">0</span>/10 vasos</div>
+            <div class="water-tracker" id="waterTracker"></div>
+        </div>
+    </div>
+
+    <!-- PESO -->
+    <div class="card">
+        <div class="card-title">⚖️ Control de Peso</div>
+        <div class="weight-input-group">
+            <input type="number" id="weightInput" placeholder="Ej: 106.5" step="0.1">
+            <button class="btn" onclick="addWeight()">Guardar</button>
+        </div>
+        <div class="weight-history" id="weightHistory"></div>
+    </div>
+
+    <!-- MENÚ SEMANAL -->
+    <h2 style="text-align: center; margin: 25px 0 15px; font-size: 1.2rem;">📅 Menú Semanal</h2>
+
+    <details id="day-1">
+        <summary>Lunes <span class="badge badge-gym">Gym 10-11h</span></summary>
+        <div class="meal-plan">
+            <div class="meal">
+                <div class="meal-title">☕ Desayuno (Elige 1)</div>
+                <div class="option">1️⃣ Yogur griego + 30g avena + 4 nueces</div>
+                <div class="option">2️⃣ 2 tostadas integrales + tomate + jamón york</div>
+                <div class="option">3️⃣ Vaso leche semidesnatada + galletas integrales</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="option">1 manzana + 1 vaso agua grande</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍽️ Comida (Elige 1)</div>
+                <div class="option">1️⃣ Pechuga pollo plancha + ensalada grande + 1 rebanada pan integral</div>
+                <div class="option">2️⃣ Merluza al horno + judías verdes + 1 patata pequeña</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🥪 Merienda (Post-gym)</div>
+                <div class="option">1 plátano pequeño (repone potasio)</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🌙 Cena (Elige 1)</div>
+                <div class="option">1️⃣ Tortilla 2 huevos con espinacas + yogur natural</div>
+                <div class="option">2️⃣ Crema calabacín + 1 huevo duro</div>
+            </div>
+        </div>
+    </details>
+
+    <details id="day-2">
+        <summary>Martes <span class="badge badge-gym">Gym Tarde</span></summary>
+        <div class="meal-plan">
+            <div class="meal">
+                <div class="meal-title">☕ Desayuno</div>
+                <div class="option">2 tostadas integrales + aguacate + huevo revuelto</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="option">1 pera + puñado almendras</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍽️ Comida</div>
+                <div class="option">Lentejas con verduras (sin carne) + ensalada</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🥪 Merienda</div>
+                <div class="option">1 yogur griego natural</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🌙 Cena</div>
+                <div class="option">Salmón plancha + brócoli vapor</div>
+            </div>
+        </div>
+    </details>
+
+    <details id="day-3">
+        <summary>Miércoles <span class="badge badge-gym">Gym 10-11h</span></summary>
+        <div class="meal-plan">
+            <div class="meal">
+                <div class="meal-title">☕ Desayuno</div>
+                <div class="option">Gachas avena (40g) + canela + media manzana</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="option">1 kiwi + 3 nueces</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍽️ Comida</div>
+                <div class="option">Ensalada garbanzos + atún natural + tomate</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🥪 Merienda</div>
+                <div class="option">1 plátano pequeño</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🌙 Cena</div>
+                <div class="option">Pavo plancha + champiñones salteados</div>
+            </div>
+        </div>
+    </details>
+
+    <details id="day-4">
+        <summary>Jueves <span class="badge badge-gym">Gym Tarde</span></summary>
+        <div class="meal-plan">
+            <div class="meal">
+                <div class="meal-title">☕ Desayuno</div>
+                <div class="option">Yogur griego + fresas/arándanos + 4 nueces</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="option">1 naranja o 2 mandarinas</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍽️ Comida</div>
+                <div class="option">Dorada/lubina horno + verduras asadas + 1 patata</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🥪 Merienda</div>
+                <div class="option">1 vaso leche semidesnatada</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🌙 Cena</div>
+                <div class="option">Revuelto claras + espárragos trigueros</div>
+            </div>
+        </div>
+    </details>
+
+    <details id="day-5">
+        <summary>Viernes <span class="badge badge-gym">Gym 10-11h</span></summary>
+        <div class="meal-plan">
+            <div class="meal">
+                <div class="meal-title">☕ Desayuno</div>
+                <div class="option">Tostadas integrales + tomate + atún natural</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="option">1 manzana + puñado almendras</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍽️ Comida</div>
+                <div class="option">Pollo asado (sin piel) + calabacín + berenjena</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🥪 Merienda</div>
+                <div class="option">1 plátano pequeño</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🌙 Cena</div>
+                <div class="option">Crema calabaza + 1 rebanada pan integral</div>
+            </div>
+        </div>
+    </details>
+
+    <details id="day-6">
+        <summary>Sábado <span class="badge badge-rest">Descanso</span></summary>
+        <div class="meal-plan">
+            <div class="meal">
+                <div class="meal-title">☕ Desayuno</div>
+                <div class="option">Tortitas: 1 huevo + 1 plátano + 2 cdas avena</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="option">Agua con gas + limón (baja ácido úrico)</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍽️ Comida</div>
+                <div class="option">Filete ternera magra (única carne roja semana) + judías verdes</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🥪 Merienda</div>
+                <div class="option">1 yogur griego</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🌙 Cena</div>
+                <div class="option">Ensalada completa + queso fresco</div>
+            </div>
+        </div>
+    </details>
+
+    <details id="day-0">
+        <summary>Domingo <span class="badge badge-rest">Descanso</span></summary>
+        <div class="meal-plan">
+            <div class="meal">
+                <div class="meal-title">☕ Desayuno</div>
+                <div class="option">Vaso leche semidesnatada + tostadas integrales + aceite/tomate</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="option">1 fruta temporada</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🍽️ Comida</div>
+                <div class="option">Bacalao + pimientos asados + ensalada</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🥪 Merienda</div>
+                <div class="option">Puñado frutos secos sin sal</div>
+            </div>
+            <div class="meal">
+                <div class="meal-title">🌙 Cena</div>
+                <div class="option">Sopa verduras + 1 huevo cocido</div>
+            </div>
+        </div>
+    </details>
+
+    <!-- LISTA COMPRA -->
+    <div class="card" style="margin-top: 25px;">
+        <div class="card-title">🛒 Lista Compra Semanal</div>
+        
+        <div class="shopping-category">🥦 Frutas y Verduras</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Espinacas, brócoli, judías verdes</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Calabacín, puerro, calabaza</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Tomates, lechuga, pepino</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Cebolla, pimientos, zanahoria</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Manzanas, plátanos, peras</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Kiwis, naranjas, limones</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Champiñones, espárragos bote</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Aguacates</div>
+
+        <div class="shopping-category">🥩 Proteínas</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Pechugas pollo y pavo</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Salmón, merluza, bacalao</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Dorada o lubina</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Huevos (docena)</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Atún natural (3-4 latas)</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Jamón york alta calidad</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Filete ternera magra (1 unidad)</div>
+
+        <div class="shopping-category">🥛 Lácteos</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Yogur griego natural (pack)</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Leche semidesnatada</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Queso fresco batido 0%</div>
+
+        <div class="shopping-category"> Despensa</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Pan integral 100%</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Avena hojuelas</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Lentejas bote (2)</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Garbanzos bote (2)</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Aceite oliva virgen extra</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Nueces, almendras (crudas)</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Semillas chía o lino</div>
+        <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Galletas integrales sin azúcar</div>
+    </div>
+
+    <!-- CONSEJOS -->
+    <div class="info-box">
+        <strong>💡 Consejos Clave:</strong>
+        <ul>
+            <li>Bebe 2.5L agua al día (tu medicación deshidrata)</li>
+            <li>Cero alcohol y refrescos (suben ácido úrico)</li>
+            <li>Come primero verdura, luego proteína, luego carbohidrato</li>
+            <li>Toma el suplemento de Vitamina D recetado</li>
+            <li>15 min sol diario ayuda a subir Vitamina D</li>
+        </ul>
+    </div>
+
+</div>
+
+<script>
+    // SERVICE WORKER
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
+    }
+
+    // CHECKLIST
+    function toggleCheck(element) {
+        const cb = element.querySelector('input');
+        if (event.target !== cb) cb.checked = !cb.checked;
+        element.classList.toggle('completed', cb.checked);
+        localStorage.setItem('boni_' + cb.id, cb.checked);
+    }
+    document.querySelectorAll('.checklist-item input').forEach(cb => {
+        if (localStorage.getItem('boni_' + cb.id) === 'true') {
+            cb.checked = true;
+            cb.parentElement.classList.add('completed');
+        }
+    });
+
+    // AGUA - Auto-reset daily
+    const waterTracker = document.getElementById('waterTracker');
+    for (let i = 1; i <= 10; i++) {
+        const glass = document.createElement('span');
+        glass.className = 'water-glass';
+        glass.innerHTML = '💧';
+        glass.onclick = () => toggleWater(i);
+        waterTracker.appendChild(glass);
+    }
+
+    function getWaterData() {
+        const saved = localStorage.getItem('boni_water_data');
+        const today = new Date().toDateString();
+        if (saved) {
+            const data = JSON.parse(saved);
+            if (data.date === today) return data.count;
+        }
+        return 0;
+    }
+
+    function saveWaterData(count) {
+        localStorage.setItem('boni_water_data', JSON.stringify({
+            date: new Date().toDateString(),
+            count: count
+        }));
+    }
+
+    function toggleWater(index) {
+        let current = getWaterData();
+        current = (current === index) ? index - 1 : index;
+        saveWaterData(current);
+        updateWaterUI(current);
+    }
+
+    function updateWaterUI(count) {
+        document.getElementById('waterCount').textContent = count;
+        document.querySelectorAll('.water-glass').forEach((glass, idx) => {
+            glass.classList.toggle('filled', idx < count);
+        });
+    }
+    updateWaterUI(getWaterData());
+
+    // PESO
+    function loadWeights() {
+        const weights = JSON.parse(localStorage.getItem('boni_weights') || '[]');
+        const container = document.getElementById('weightHistory');
+        container.innerHTML = '';
+        weights.slice(-4).reverse().forEach(w => {
+            const badge = document.createElement('div');
+            badge.className = 'weight-badge';
+            badge.textContent = w + ' kg';
+            container.appendChild(badge);
+        });
+    }
+    function addWeight() {
+        const input = document.getElementById('weightInput');
+        const val = parseFloat(input.value);
+        if (val > 0) {
+            const weights = JSON.parse(localStorage.getItem('boni_weights') || '[]');
+            weights.push(val);
+            localStorage.setItem('boni_weights', JSON.stringify(weights));
+            input.value = '';
+            loadWeights();
+        }
+    }
+    loadWeights();
+
+    // SHOPPING LIST
+    function toggleShop(element) {
+        const cb = element.querySelector('input');
+        if (event.target !== cb) cb.checked = !cb.checked;
+        element.classList.toggle('checked', cb.checked);
+    }
+
+    // OPEN TODAY
+    const today = new Date().getDay();
+    const todayEl = document.getElementById('day-' + today);
+    if (todayEl) {
+        todayEl.setAttribute('open', '');
+        todayEl.classList.add('today-highlight');
+    }
+</script>
+
+</body>
+</html>
