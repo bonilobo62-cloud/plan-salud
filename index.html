@@ -34,13 +34,31 @@
         .header {
             background: linear-gradient(135deg, var(--primary), #1d4ed8);
             color: white;
-            padding: 20px 20px;
+            padding: 15px 20px;
             border-radius: 0 0 20px 20px;
             text-align: center;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .header h1 { margin: 0; font-size: 1.4rem; font-weight: 700; }
-        .header p { margin: 5px 0 0; opacity: 0.9; font-size: 0.85rem; }
+        .header-title { flex: 1; }
+        .header h1 { margin: 0; font-size: 1.3rem; font-weight: 700; }
+        .header p { margin: 3px 0 0; opacity: 0.9; font-size: 0.8rem; }
+        
+        .btn-analitica {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+        .btn-analitica:hover { background: rgba(255,255,255,0.3); }
         
         .container { max-width: 600px; margin: 0 auto; padding: 15px; }
         
@@ -63,24 +81,58 @@
             gap: 6px;
         }
 
-        /* Checklist simplificado */
-        .checklist-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
+        /* Analítica Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow-y: auto;
         }
-        .checklist-item:last-child { border-bottom: none; }
-        .checklist-item input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            accent-color: var(--success);
-            cursor: pointer;
+        .modal-content {
+            background: var(--card);
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 500px;
+            position: relative;
         }
-        .checklist-item label { flex: 1; cursor: pointer; font-size: 0.95rem; }
-        .checklist-item.completed label { text-decoration: line-through; color: var(--text-light); }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .analisis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .analisis-item {
+            background: var(--bg);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .analisis-item .valor { font-size: 1.4rem; font-weight: 800; margin: 5px 0; }
+        .analisis-item .nombre { font-size: 0.8rem; color: var(--text-light); font-weight: 600; }
+        .status-red { color: var(--danger); }
+        .status-yellow { color: var(--warning); }
+        .status-green { color: var(--success); }
 
         /* Water Tracker */
         .water-tracker { display: flex; justify-content: space-between; margin-top: 8px; flex-wrap: wrap; gap: 3px; }
@@ -139,8 +191,8 @@
         }
         .option { 
             background: var(--bg); 
-            padding: 8px; 
-            margin: 6px 0; 
+            padding: 10px; 
+            margin: 8px 0; 
             border-radius: 6px; 
             font-size: 0.9rem;
             border-left: 3px solid var(--primary);
@@ -174,26 +226,69 @@
 <body>
 
 <div class="header">
-    <h1>🏃 Plan Salud - Bonifacio</h1>
-    <p>Menú semanal + Control de peso</p>
+    <div class="header-title">
+        <h1>🏃 Plan Salud - Bonifacio</h1>
+        <p>Menú semanal + Control de peso</p>
+    </div>
+    <button class="btn-analitica" onclick="toggleAnalitica()">📊 Analítica</button>
+</div>
+
+<!-- MODAL ANALÍTICA -->
+<div id="modalAnalitica" class="modal" onclick="closeAnalitica(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="toggleAnalitica()">×</button>
+        <h2 style="margin-top: 0; color: var(--primary);">📊 Tu Analítica (Junio 2026)</h2>
+        <div class="analisis-grid">
+            <div class="analisis-item">
+                <div class="nombre">Glucosa</div>
+                <div class="valor status-red">141</div>
+                <div class="nombre">mg/dL (70-110)</div>
+            </div>
+            <div class="analisis-item">
+                <div class="nombre">HbA1c</div>
+                <div class="valor status-yellow">7.1%</div>
+                <div class="nombre">Obj: &lt;7%</div>
+            </div>
+            <div class="analisis-item">
+                <div class="nombre">Ác. Úrico</div>
+                <div class="valor status-yellow">7.6</div>
+                <div class="nombre">mg/dL (3.4-7.0)</div>
+            </div>
+            <div class="analisis-item">
+                <div class="nombre">Vit. D</div>
+                <div class="valor status-yellow">23.1</div>
+                <div class="nombre">ng/mL (&gt;30)</div>
+            </div>
+            <div class="analisis-item">
+                <div class="nombre">Colesterol</div>
+                <div class="valor status-green">162</div>
+                <div class="nombre">mg/dL ✓</div>
+            </div>
+            <div class="analisis-item">
+                <div class="nombre">Creatinina</div>
+                <div class="valor status-green">1.12</div>
+                <div class="nombre">mg/dL ✓</div>
+            </div>
+        </div>
+        <div style="margin-top: 15px; padding: 10px; background: var(--bg); border-radius: 6px; font-size: 0.85rem;">
+            <strong>✅ Bien controlado:</strong> Colesterol, hígado, riñón, hematología<br>
+            <strong>⚠️ A mejorar:</strong> Glucosa, HbA1c, Ácido úrico, Vitamina D
+        </div>
+    </div>
 </div>
 
 <div class="container">
 
-    <!-- CHECKLIST SIMPLE -->
+    <!-- SOLO AGUA -->
     <div class="card">
-        <div class="card-title">✅ Hoy</div>
-        <div class="checklist-item" onclick="toggleCheck(this)">
-            <input type="checkbox" id="gym"><label for="gym">🏋️ Gimnasio</label>
+        <div class="card-title">🚰 Control de Agua</div>
+        <div style="font-size: 0.9rem; margin-bottom: 10px; color: var(--text-light);">
+            Meta: 10 vasos al día (2.5L) - Tu medicación deshidrata
         </div>
-        <div class="checklist-item" onclick="toggleCheck(this)">
-            <input type="checkbox" id="vitd"><label for="vitd">☀️ Vitamina D</label>
+        <div style="text-align: center; font-size: 1.2rem; margin-bottom: 8px;">
+            Vasos: <span id="waterCount" style="font-weight: bold; color: var(--primary);">0</span>/10
         </div>
-        
-        <div style="margin-top: 12px;">
-            <div class="meal-title">🚰 Agua: <span id="waterCount">0</span>/10 vasos</div>
-            <div class="water-tracker" id="waterTracker"></div>
-        </div>
+        <div class="water-tracker" id="waterTracker"></div>
     </div>
 
     <!-- PESO -->
@@ -213,26 +308,26 @@
         <summary>Lunes <span class="badge badge-gym">Gym 10-11h</span></summary>
         <div class="meal-plan">
             <div class="meal">
-                <div class="meal-title">☕ Desayuno (Elige 1)</div>
+                <div class="meal-title">☕ DESAYUNO (ELIGE 1)</div>
                 <div class="option">1️⃣ Yogur griego + 30g avena + 4 nueces</div>
                 <div class="option">2️⃣ 2 tostadas integrales + tomate + jamón york</div>
                 <div class="option">3️⃣ Vaso leche semidesnatada + galletas integrales</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="meal-title">🍎 MEDIA MAÑANA</div>
                 <div class="option">1 manzana + 1 vaso agua grande</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍽️ Comida (Elige 1)</div>
+                <div class="meal-title">🍽️ COMIDA (ELIGE 1)</div>
                 <div class="option">1️⃣ Pechuga pollo plancha + ensalada grande + 1 rebanada pan integral</div>
                 <div class="option">2️⃣ Merluza al horno + judías verdes + 1 patata pequeña</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🥪 Merienda (Post-gym)</div>
+                <div class="meal-title">🥪 MERIENDA (POST-GYM)</div>
                 <div class="option">1 plátano pequeño (repone potasio)</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🌙 Cena (Elige 1)</div>
+                <div class="meal-title">🌙 CENA (ELIGE 1)</div>
                 <div class="option">1️⃣ Tortilla 2 huevos con espinacas + yogur natural</div>
                 <div class="option">2️⃣ Crema calabacín + 1 huevo duro</div>
             </div>
@@ -243,24 +338,27 @@
         <summary>Martes <span class="badge badge-gym">Gym Tarde</span></summary>
         <div class="meal-plan">
             <div class="meal">
-                <div class="meal-title">☕ Desayuno</div>
-                <div class="option">2 tostadas integrales + aguacate + huevo revuelto</div>
+                <div class="meal-title">☕ DESAYUNO (ELIGE 1)</div>
+                <div class="option">1️⃣ 2 tostadas integrales + aguacate + huevo revuelto</div>
+                <div class="option">2️⃣ Yogur griego + fresas + 4 nueces</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="meal-title">🍎 MEDIA MAÑANA</div>
                 <div class="option">1 pera + puñado almendras</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍽️ Comida</div>
-                <div class="option">Lentejas con verduras (sin carne) + ensalada</div>
+                <div class="meal-title">🍽️ COMIDA (ELIGE 1)</div>
+                <div class="option">1️⃣ Lentejas con verduras (sin carne) + ensalada</div>
+                <div class="option">2️⃣ Garbanzos con espinacas + huevo cocido</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🥪 Merienda</div>
+                <div class="meal-title">🥪 MERIENDA</div>
                 <div class="option">1 yogur griego natural</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🌙 Cena</div>
-                <div class="option">Salmón plancha + brócoli vapor</div>
+                <div class="meal-title">🌙 CENA (ELIGE 1)</div>
+                <div class="option">1️⃣ Salmón plancha + brócoli vapor</div>
+                <div class="option">2️⃣ Merluza horno + pimientos asados</div>
             </div>
         </div>
     </details>
@@ -269,24 +367,27 @@
         <summary>Miércoles <span class="badge badge-gym">Gym 10-11h</span></summary>
         <div class="meal-plan">
             <div class="meal">
-                <div class="meal-title">☕ Desayuno</div>
-                <div class="option">Gachas avena (40g) + canela + media manzana</div>
+                <div class="meal-title">☕ DESAYUNO (ELIGE 1)</div>
+                <div class="option">1️⃣ Gachas avena (40g) + canela + media manzana</div>
+                <div class="option">2️⃣ Tostadas integrales + tomate + atún natural</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="meal-title">🍎 MEDIA MAÑANA</div>
                 <div class="option">1 kiwi + 3 nueces</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍽️ Comida</div>
-                <div class="option">Ensalada garbanzos + atún natural + tomate</div>
+                <div class="meal-title">🍽️ COMIDA (ELIGE 1)</div>
+                <div class="option">1️⃣ Ensalada garbanzos + atún natural + tomate</div>
+                <div class="option">2️⃣ Pollo plancha + arroz integral + verduras</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🥪 Merienda</div>
+                <div class="meal-title">🥪 MERIENDA (POST-GYM)</div>
                 <div class="option">1 plátano pequeño</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🌙 Cena</div>
-                <div class="option">Pavo plancha + champiñones salteados</div>
+                <div class="meal-title">🌙 CENA (ELIGE 1)</div>
+                <div class="option">1️⃣ Pavo plancha + champiñones salteados</div>
+                <div class="option">2️⃣ Revuelto claras + espárragos</div>
             </div>
         </div>
     </details>
@@ -295,24 +396,27 @@
         <summary>Jueves <span class="badge badge-gym">Gym Tarde</span></summary>
         <div class="meal-plan">
             <div class="meal">
-                <div class="meal-title">☕ Desayuno</div>
-                <div class="option">Yogur griego + fresas/arándanos + 4 nueces</div>
+                <div class="meal-title">☕ DESAYUNO (ELIGE 1)</div>
+                <div class="option">1️⃣ Yogur griego + fresas/arándanos + 4 nueces</div>
+                <div class="option">2️⃣ Leche semidesnatada + galletas integrales</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="meal-title">🍎 MEDIA MAÑANA</div>
                 <div class="option">1 naranja o 2 mandarinas</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍽️ Comida</div>
-                <div class="option">Dorada/lubina horno + verduras asadas + 1 patata</div>
+                <div class="meal-title">🍽️ COMIDA (ELIGE 1)</div>
+                <div class="option">1️⃣ Dorada/lubina horno + verduras asadas + 1 patata</div>
+                <div class="option">2️⃣ Bacalao + pimientos + ensalada</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🥪 Merienda</div>
+                <div class="meal-title">🥪 MERIENDA</div>
                 <div class="option">1 vaso leche semidesnatada</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🌙 Cena</div>
-                <div class="option">Revuelto claras + espárragos trigueros</div>
+                <div class="meal-title">🌙 CENA (ELIGE 1)</div>
+                <div class="option">1️⃣ Revuelto claras + espárragos trigueros</div>
+                <div class="option">2️⃣ Crema calabaza + huevo cocido</div>
             </div>
         </div>
     </details>
@@ -321,24 +425,27 @@
         <summary>Viernes <span class="badge badge-gym">Gym 10-11h</span></summary>
         <div class="meal-plan">
             <div class="meal">
-                <div class="meal-title">☕ Desayuno</div>
-                <div class="option">Tostadas integrales + tomate + atún natural</div>
+                <div class="meal-title">☕ DESAYUNO (ELIGE 1)</div>
+                <div class="option">1️⃣ Tostadas integrales + tomate + atún natural</div>
+                <div class="option">2️⃣ Yogur griego + avena + nueces</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="meal-title">🍎 MEDIA MAÑANA</div>
                 <div class="option">1 manzana + puñado almendras</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍽️ Comida</div>
-                <div class="option">Pollo asado (sin piel) + calabacín + berenjena</div>
+                <div class="meal-title">🍽️ COMIDA (ELIGE 1)</div>
+                <div class="option">1️⃣ Pollo asado (sin piel) + calabacín + berenjena</div>
+                <div class="option">2️⃣ Salmón + brócoli + 1 patata pequeña</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🥪 Merienda</div>
+                <div class="meal-title">🥪 MERIENDA (POST-GYM)</div>
                 <div class="option">1 plátano pequeño</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🌙 Cena</div>
-                <div class="option">Crema calabaza + 1 rebanada pan integral</div>
+                <div class="meal-title">🌙 CENA (ELIGE 1)</div>
+                <div class="option">1️⃣ Crema calabaza + 1 rebanada pan integral</div>
+                <div class="option">2️⃣ Ensalada completa + atún</div>
             </div>
         </div>
     </details>
@@ -347,24 +454,27 @@
         <summary>Sábado <span class="badge badge-rest">Descanso</span></summary>
         <div class="meal-plan">
             <div class="meal">
-                <div class="meal-title">☕ Desayuno</div>
-                <div class="option">Tortitas: 1 huevo + 1 plátano + 2 cdas avena</div>
+                <div class="meal-title">☕ DESAYUNO (ELIGE 1)</div>
+                <div class="option">1️⃣ Tortitas: 1 huevo + 1 plátano + 2 cdas avena</div>
+                <div class="option">2️⃣ Tostadas integrales + aguacate + huevo</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="meal-title">🍎 MEDIA MAÑANA</div>
                 <div class="option">Agua con gas + limón (baja ácido úrico)</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍽️ Comida</div>
-                <div class="option">Filete ternera magra (única carne roja semana) + judías verdes</div>
+                <div class="meal-title">🍽️ COMIDA (ELIGE 1)</div>
+                <div class="option">1️⃣ Filete ternera magra (única carne roja semana) + judías verdes</div>
+                <div class="option">2️⃣ Pollo plancha + ensalada grande</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🥪 Merienda</div>
+                <div class="meal-title">🥪 MERIENDA</div>
                 <div class="option">1 yogur griego</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🌙 Cena</div>
-                <div class="option">Ensalada completa + queso fresco</div>
+                <div class="meal-title">🌙 CENA (ELIGE 1)</div>
+                <div class="option">1️⃣ Ensalada completa + queso fresco</div>
+                <div class="option">2️⃣ Merluza + verduras vapor</div>
             </div>
         </div>
     </details>
@@ -373,24 +483,27 @@
         <summary>Domingo <span class="badge badge-rest">Descanso</span></summary>
         <div class="meal-plan">
             <div class="meal">
-                <div class="meal-title">☕ Desayuno</div>
-                <div class="option">Vaso leche semidesnatada + tostadas integrales + aceite/tomate</div>
+                <div class="meal-title">☕ DESAYUNO (ELIGE 1)</div>
+                <div class="option">1️⃣ Vaso leche semidesnatada + tostadas integrales + aceite/tomate</div>
+                <div class="option">2️⃣ Yogur griego + fruta + nueces</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍎 Media Mañana</div>
+                <div class="meal-title">🍎 MEDIA MAÑANA</div>
                 <div class="option">1 fruta temporada</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🍽️ Comida</div>
-                <div class="option">Bacalao + pimientos asados + ensalada</div>
+                <div class="meal-title">🍽️ COMIDA (ELIGE 1)</div>
+                <div class="option">1️⃣ Bacalao + pimientos asados + ensalada</div>
+                <div class="option">2️⃣ Pollo asado + verduras horno</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🥪 Merienda</div>
+                <div class="meal-title">🥪 MERIENDA</div>
                 <div class="option">Puñado frutos secos sin sal</div>
             </div>
             <div class="meal">
-                <div class="meal-title">🌙 Cena</div>
-                <div class="option">Sopa verduras + 1 huevo cocido</div>
+                <div class="meal-title">🌙 CENA (ELIGE 1)</div>
+                <div class="option">1️⃣ Sopa verduras + 1 huevo cocido</div>
+                <div class="option">2️⃣ Tortilla francesa + ensalada</div>
             </div>
         </div>
     </details>
@@ -423,7 +536,7 @@
         <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Leche semidesnatada</div>
         <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Queso fresco batido 0%</div>
 
-        <div class="shopping-category"> Despensa</div>
+        <div class="shopping-category">🥖 Despensa</div>
         <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Pan integral 100%</div>
         <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Avena hojuelas</div>
         <div class="shopping-item" onclick="toggleShop(this)"><input type="checkbox"> Lentejas bote (2)</div>
@@ -438,8 +551,8 @@
     <div class="info-box">
         <strong>💡 Consejos:</strong>
         <ul>
-            <li>Bebe 2.5L agua al día</li>
-            <li>Cero alcohol y refrescos</li>
+            <li>Bebe 2.5L agua al día (tu medicación deshidrata)</li>
+            <li>Cero alcohol y refrescos (suben ácido úrico)</li>
             <li>15 min sol diario (Vitamina D)</li>
             <li>Toma tu medicación según pauta médica</li>
         </ul>
@@ -453,19 +566,16 @@
         navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
     }
 
-    // CHECKLIST
-    function toggleCheck(element) {
-        const cb = element.querySelector('input');
-        if (event.target !== cb) cb.checked = !cb.checked;
-        element.classList.toggle('completed', cb.checked);
-        localStorage.setItem('boni_' + cb.id, cb.checked);
+    // MODAL ANALÍTICA
+    function toggleAnalitica() {
+        const modal = document.getElementById('modalAnalitica');
+        modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
     }
-    document.querySelectorAll('.checklist-item input').forEach(cb => {
-        if (localStorage.getItem('boni_' + cb.id) === 'true') {
-            cb.checked = true;
-            cb.parentElement.classList.add('completed');
+    function closeAnalitica(event) {
+        if (event.target === document.getElementById('modalAnalitica')) {
+            document.getElementById('modalAnalitica').style.display = 'none';
         }
-    });
+    }
 
     // AGUA - Auto-reset daily
     const waterTracker = document.getElementById('waterTracker');
